@@ -41,6 +41,8 @@ grant select on public.posts to anon, authenticated;
 grant select on public.comments to anon, authenticated;
 grant insert on public.posts to authenticated;
 grant insert on public.comments to authenticated;
+grant delete on public.posts to authenticated;
+grant delete on public.comments to authenticated;
 
 alter table public.posts enable row level security;
 alter table public.comments enable row level security;
@@ -59,6 +61,13 @@ create policy "Authenticated can insert posts"
   to authenticated
   with check (auth.uid() = user_id);
 
+drop policy if exists "Authenticated can delete own posts" on public.posts;
+create policy "Authenticated can delete own posts"
+  on public.posts
+  for delete
+  to authenticated
+  using (auth.uid() = user_id);
+
 drop policy if exists "Public can read comments" on public.comments;
 create policy "Public can read comments"
   on public.comments
@@ -72,3 +81,10 @@ create policy "Authenticated can insert comments"
   for insert
   to authenticated
   with check (auth.uid() = user_id);
+
+drop policy if exists "Authenticated can delete own comments" on public.comments;
+create policy "Authenticated can delete own comments"
+  on public.comments
+  for delete
+  to authenticated
+  using (auth.uid() = user_id);

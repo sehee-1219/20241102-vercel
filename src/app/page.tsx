@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { deleteComment, deletePost } from "@/app/actions";
 import { signOut } from "@/app/login/actions";
 import { CommentForm } from "@/components/comment-form";
 import { PostForm } from "@/components/post-form";
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const { posts, loadError } = await getBoardSnapshot();
   const viewer = await getViewer();
+  const viewerId = viewer?.id ?? null;
   const viewerName = viewer ? getDisplayName(viewer) : null;
   const viewerUsername = viewer ? getUsername(viewer) : null;
   const totalComments = posts.reduce(
@@ -98,8 +100,8 @@ export default async function Home() {
             </div>
             <p className="mutedText">
               이 업데이트를 반영한 뒤에는 <code>supabase/schema.sql</code> 을
-              다시 실행해야 합니다. 게시글과 댓글에 로그인 사용자 연결과
-              권한 정책이 포함되어 있습니다.
+              다시 실행해야 합니다. 게시글과 댓글에 로그인 사용자 연결과 권한
+              정책이 포함되어 있습니다.
             </p>
             <p className="mutedText">
               아이디 전용 가입을 쓰려면 Supabase Auth 설정에서 이메일 인증을
@@ -137,53 +139,94 @@ export default async function Home() {
             </section>
           ) : null}
 
-          {posts.map((post) => (
-            <article className="panel postPanel" key={post.id}>
-              <div className="postTopRow">
-                <div>
-                  <p className="sectionLabel">게시글</p>
-                  <h2>{post.title}</h2>
-                </div>
-                <div className="postMeta">
-                  <span>{post.author_name}</span>
-                  <span>{formatTimestamp(post.created_at)}</span>
-                </div>
-              </div>
+          {posts.map((post) => {
+            const canDeletePost = viewerId !== null && viewerId === post.user_id;
 
-              <p className="postBody">{post.body}</p>
-
-              <div className="commentHeader">
-                <h3>댓글 {post.comments.length}</h3>
-              </div>
-
-              <div className="commentStack">
-                {post.comments.length === 0 ? (
-                  <div className="commentCard commentEmpty">아직 댓글이 없습니다.</div>
-                ) : null}
-
-                {post.comments.map((comment) => (
-                  <div className="commentCard" key={comment.id}>
-                    <div className="commentMeta">
-                      <strong>{comment.author_name}</strong>
-                      <span>{formatTimestamp(comment.created_at)}</span>
-                    </div>
-                    <p>{comment.body}</p>
+            return (
+              <article className="panel postPanel" key={post.id}>
+                <div className="postTopRow">
+                  <div>
+                    <p className="sectionLabel">게시글</p>
+                    <h2>{post.title}</h2>
                   </div>
-                ))}
-              </div>
 
-              {viewerName ? (
-                <CommentForm postId={post.id} userName={viewerName} />
-              ) : (
-                <div className="noticeCard">
-                  <p className="mutedText">이 글에 댓글을 남기려면 로그인하세요.</p>
-                  <Link className="buttonGhostLink" href="/login">
-                    로그인 화면으로
-                  </Link>
+                  <div className="postSide">
+                    <div className="postMeta">
+                      <span>{post.author_name}</span>
+                      <span>{formatTimestamp(post.created_at)}</span>
+                    </div>
+
+                    {canDeletePost ? (
+                      <form action={deletePost} className="inlineDeleteForm">
+                        <input name="postId" type="hidden" value={post.id} />
+                        <button className="buttonDanger" type="submit">
+                          게시글 삭제
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
                 </div>
-              )}
-            </article>
-          ))}
+
+                <p className="postBody">{post.body}</p>
+
+                <div className="commentHeader">
+                  <h3>댓글 {post.comments.length}</h3>
+                </div>
+
+                <div className="commentStack">
+                  {post.comments.length === 0 ? (
+                    <div className="commentCard commentEmpty">아직 댓글이 없습니다.</div>
+                  ) : null}
+
+                  {post.comments.map((comment) => {
+                    const canDeleteComment =
+                      viewerId !== null && viewerId === comment.user_id;
+
+                    return (
+                      <div className="commentCard" key={comment.id}>
+                        <div className="commentCardHeader">
+                          <div className="commentMeta">
+                            <strong>{comment.author_name}</strong>
+                            <span>{formatTimestamp(comment.created_at)}</span>
+                          </div>
+
+                          {canDeleteComment ? (
+                            <form
+                              action={deleteComment}
+                              className="inlineDeleteForm"
+                            >
+                              <input
+                                name="commentId"
+                                type="hidden"
+                                value={comment.id}
+                              />
+                              <button className="buttonDanger" type="submit">
+                                댓글 삭제
+                              </button>
+                            </form>
+                          ) : null}
+                        </div>
+                        <p>{comment.body}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {viewerName ? (
+                  <CommentForm postId={post.id} userName={viewerName} />
+                ) : (
+                  <div className="noticeCard">
+                    <p className="mutedText">
+                      이 글에 댓글을 남기려면 로그인하세요.
+                    </p>
+                    <Link className="buttonGhostLink" href="/login">
+                      로그인 화면으로
+                    </Link>
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </section>
       </div>
     </main>

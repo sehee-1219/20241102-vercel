@@ -158,3 +158,49 @@ export async function createComment(
     };
   }
 }
+
+export async function deletePost(formData: FormData) {
+  const postId = readField(formData, "postId");
+
+  if (!postId) {
+    return;
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return;
+  }
+
+  await supabase.from("posts").delete().eq("id", postId).eq("user_id", user.id);
+
+  revalidatePath("/");
+}
+
+export async function deleteComment(formData: FormData) {
+  const commentId = readField(formData, "commentId");
+
+  if (!commentId) {
+    return;
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return;
+  }
+
+  await supabase
+    .from("comments")
+    .delete()
+    .eq("id", commentId)
+    .eq("user_id", user.id);
+
+  revalidatePath("/");
+}
