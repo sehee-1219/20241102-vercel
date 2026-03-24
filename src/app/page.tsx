@@ -92,22 +92,6 @@ export default async function Home() {
               </div>
             )}
           </section>
-
-          <section className="panel compactPanel">
-            <div className="panelHeader">
-              <p className="sectionLabel">안내</p>
-              <h2>설정 메모</h2>
-            </div>
-            <p className="mutedText">
-              이 업데이트를 반영한 뒤에는 <code>supabase/schema.sql</code> 을
-              다시 실행해야 합니다. 게시글과 댓글에 로그인 사용자 연결과 권한
-              정책이 포함되어 있습니다.
-            </p>
-            <p className="mutedText">
-              아이디 전용 가입을 쓰려면 Supabase Auth 설정에서 이메일 인증을
-              꺼야 합니다.
-            </p>
-          </section>
         </aside>
 
         <section className="feedStack">
