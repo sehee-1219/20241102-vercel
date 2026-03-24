@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 
-const USERNAME_PATTERN = /^[a-z]{3,20}$/;
+const USERNAME_PATTERN = /^[a-z0-9]{3,20}$/;
 const INTERNAL_EMAIL_DOMAIN = "users.signal-board.example.com";
 
 function trimValue(value: unknown) {

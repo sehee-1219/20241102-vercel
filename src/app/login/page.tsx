@@ -52,7 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   autoCorrect="off"
                   id="signin-username"
                   name="username"
-                  placeholder="영문 소문자 아이디"
+                  placeholder="영문 소문자/숫자 아이디"
                   required
                   type="text"
                 />
@@ -88,7 +88,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   id="signup-username"
                   maxLength={20}
                   name="username"
-                  placeholder="3-20자 영문 소문자만 입력"
+                  placeholder="3-20자 영문 소문자와 숫자"
                   required
                   type="text"
                 />

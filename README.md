@@ -39,7 +39,7 @@ This schema now:
 - `Sign in` uses `username + password`
 - `Log out` clears the session
 - The app uses an internal generated email behind the scenes because Supabase password auth supports email or phone identities, not username identities directly
-- Usernames are restricted to 3-20 lowercase English letters
+- Usernames are restricted to 3-20 lowercase English letters and numbers
 - Disable Email Confirmations in Supabase Auth settings so signup completes immediately without email verification
 
 ## GitHub / Vercel
