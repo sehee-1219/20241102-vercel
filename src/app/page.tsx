@@ -4,7 +4,7 @@ import { signOut } from "@/app/login/actions";
 import { CommentForm } from "@/components/comment-form";
 import { PostForm } from "@/components/post-form";
 import { formatTimestamp, getBoardSnapshot, getViewer } from "@/lib/board";
-import { getDisplayName } from "@/lib/user";
+import { getDisplayName, getUsername } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +12,7 @@ export default async function Home() {
   const { posts, loadError } = await getBoardSnapshot();
   const viewer = await getViewer();
   const viewerName = viewer ? getDisplayName(viewer) : null;
+  const viewerUsername = viewer ? getUsername(viewer) : null;
   const totalComments = posts.reduce(
     (count, post) => count + post.comments.length,
     0,
@@ -21,7 +22,9 @@ export default async function Home() {
     <main className="pageShell">
       <div className="topBar">
         <div className="identityPill">
-          {viewerName ? `Signed in as ${viewerName}` : "Read-only mode"}
+          {viewerName && viewerUsername
+            ? `Signed in as ${viewerName} (@${viewerUsername})`
+            : "Read-only mode"}
         </div>
 
         {viewer ? (
@@ -78,7 +81,7 @@ export default async function Home() {
             ) : (
               <div className="stack gap16">
                 <p className="mutedText">
-                  Use email sign-up or login before creating posts and comments.
+                  Use your username and password before creating posts and comments.
                 </p>
                 <Link className="buttonGhostLink buttonGhostLinkFill" href="/login">
                   Open auth page
@@ -96,6 +99,10 @@ export default async function Home() {
               Re-run <code>supabase/schema.sql</code> after pulling this update.
               The schema now adds authenticated posting policies and user-linked
               columns for posts and comments.
+            </p>
+            <p className="mutedText">
+              For username-only signup, disable Email Confirmations in Supabase
+              Auth settings.
             </p>
           </section>
         </aside>

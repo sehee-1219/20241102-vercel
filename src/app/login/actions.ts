@@ -1,10 +1,14 @@
 "use server";
 
-import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import {
+  buildInternalEmail,
+  isValidUsername,
+  normalizeUsername,
+} from "@/lib/user";
 
 function readField(formData: FormData, key: string) {
   return formData.get(key)?.toString().trim() ?? "";
@@ -24,12 +28,22 @@ function buildRedirect(
 }
 
 export async function signUp(formData: FormData) {
+  const username = normalizeUsername(readField(formData, "username"));
   const displayName = readField(formData, "displayName");
-  const email = readField(formData, "email");
   const password = readField(formData, "password");
 
-  if (!displayName || !email || !password) {
+  if (!username || !displayName || !password) {
     redirect(buildRedirect("error", "Fill in every field.", "signup"));
+  }
+
+  if (!isValidUsername(username)) {
+    redirect(
+      buildRedirect(
+        "error",
+        "Use 3-20 lowercase letters, numbers, dots, underscores, or hyphens for the username.",
+        "signup",
+      ),
+    );
   }
 
   if (password.length < 6) {
@@ -39,20 +53,16 @@ export async function signUp(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const headerStore = await headers();
-  const origin =
-    headerStore.get("origin") ??
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "http://localhost:3000";
+  const email = buildInternalEmail(username);
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: {
+        username,
         display_name: displayName,
       },
-      emailRedirectTo: `${origin}/auth/confirm?next=/`,
     },
   });
 
@@ -68,22 +78,33 @@ export async function signUp(formData: FormData) {
 
   redirect(
     buildRedirect(
-      "success",
-      "Check your email and confirm the account before signing in.",
-      "signin",
+      "error",
+      "Disable Email Confirmations in Supabase Auth settings to use username signup without email verification.",
+      "signup",
     ),
   );
 }
 
 export async function signIn(formData: FormData) {
-  const email = readField(formData, "email");
+  const username = normalizeUsername(readField(formData, "username"));
   const password = readField(formData, "password");
 
-  if (!email || !password) {
-    redirect(buildRedirect("error", "Enter your email and password.", "signin"));
+  if (!username || !password) {
+    redirect(buildRedirect("error", "Enter your username and password.", "signin"));
+  }
+
+  if (!isValidUsername(username)) {
+    redirect(
+      buildRedirect(
+        "error",
+        "Use the username you signed up with.",
+        "signin",
+      ),
+    );
   }
 
   const supabase = await createClient();
+  const email = buildInternalEmail(username);
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,

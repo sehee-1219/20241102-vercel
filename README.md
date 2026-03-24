@@ -35,10 +35,11 @@ This schema now:
 
 ## Auth Flow
 
-- `Sign up` creates a password-based account with a display name
-- `Sign in` unlocks post and comment forms
+- `Sign up` creates a password-based account with `username + display name + password`
+- `Sign in` uses `username + password`
 - `Log out` clears the session
-- If email confirmation is enabled in Supabase Auth, the app uses `/auth/confirm` to finish the signup flow
+- The app uses an internal generated email behind the scenes because Supabase password auth supports email or phone identities, not username identities directly
+- Disable Email Confirmations in Supabase Auth settings so signup completes immediately without email verification
 
 ## GitHub / Vercel
 

@@ -25,8 +25,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div>
             <h1>Access the board</h1>
             <p className="mutedText">
-              Create an account to publish posts and leave comments. Reading the
-              board stays public.
+              Create an account with a username and password. Reading stays
+              public, but posts and comments require sign-in.
             </p>
           </div>
           <Link className="buttonGhostLink" href="/">
@@ -46,13 +46,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
             <form action={signIn} className="stack gap16">
               <div className="field">
-                <label htmlFor="signin-email">Email</label>
+                <label htmlFor="signin-username">Username</label>
                 <input
-                  id="signin-email"
-                  name="email"
-                  placeholder="you@example.com"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  id="signin-username"
+                  name="username"
+                  placeholder="your-id"
                   required
-                  type="email"
+                  type="text"
                 />
               </div>
 
@@ -79,24 +81,28 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
             <form action={signUp} className="stack gap16">
               <div className="field">
-                <label htmlFor="signup-display-name">Display name</label>
+                <label htmlFor="signup-username">Username</label>
                 <input
-                  id="signup-display-name"
-                  name="displayName"
-                  placeholder="How your posts should appear"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  id="signup-username"
+                  maxLength={20}
+                  name="username"
+                  placeholder="3-20 chars: a-z, 0-9, . _ -"
                   required
                   type="text"
                 />
               </div>
 
               <div className="field">
-                <label htmlFor="signup-email">Email</label>
+                <label htmlFor="signup-display-name">Display name</label>
                 <input
-                  id="signup-email"
-                  name="email"
-                  placeholder="you@example.com"
+                  id="signup-display-name"
+                  maxLength={40}
+                  name="displayName"
+                  placeholder="How your posts should appear"
                   required
-                  type="email"
+                  type="text"
                 />
               </div>
 
