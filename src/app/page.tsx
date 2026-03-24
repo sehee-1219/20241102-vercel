@@ -1,11 +1,17 @@
+import Link from "next/link";
+
+import { signOut } from "@/app/login/actions";
 import { CommentForm } from "@/components/comment-form";
 import { PostForm } from "@/components/post-form";
-import { formatTimestamp, getBoardSnapshot } from "@/lib/board";
+import { formatTimestamp, getBoardSnapshot, getViewer } from "@/lib/board";
+import { getDisplayName } from "@/lib/user";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { posts, loadError } = await getBoardSnapshot();
+  const viewer = await getViewer();
+  const viewerName = viewer ? getDisplayName(viewer) : null;
   const totalComments = posts.reduce(
     (count, post) => count + post.comments.length,
     0,
@@ -13,14 +19,32 @@ export default async function Home() {
 
   return (
     <main className="pageShell">
+      <div className="topBar">
+        <div className="identityPill">
+          {viewerName ? `Signed in as ${viewerName}` : "Read-only mode"}
+        </div>
+
+        {viewer ? (
+          <form action={signOut}>
+            <button className="buttonGhost" type="submit">
+              Log out
+            </button>
+          </form>
+        ) : (
+          <Link className="buttonGhostLink" href="/login">
+            Sign in or sign up
+          </Link>
+        )}
+      </div>
+
       <section className="heroCard">
-        <p className="eyebrow">SUPABASE COMMUNITY BOARD</p>
+        <p className="eyebrow">SUPABASE MEMBER BOARD</p>
         <div className="heroRow">
           <div className="heroCopy">
             <h1>Signal Board</h1>
             <p className="heroBody">
-              공지, 기록, 회고, 짧은 대화를 한 화면에 쌓아두는 게시판입니다.
-              새 글을 남기고 각 글 아래에서 댓글로 대화를 이어갈 수 있습니다.
+              Posts and comments now run through authenticated Supabase sessions.
+              Reading stays open, but writing is available only after sign-in.
             </p>
           </div>
 
@@ -35,7 +59,7 @@ export default async function Home() {
             </div>
             <div className="statCard">
               <span className="statLabel">MODE</span>
-              <strong>PUBLIC</strong>
+              <strong>{viewer ? "SIGNED IN" : "READ ONLY"}</strong>
             </div>
           </div>
         </div>
@@ -45,20 +69,33 @@ export default async function Home() {
         <aside className="sidebarStack">
           <section className="panel featuredPanel">
             <div className="panelHeader">
-              <p className="sectionLabel">WRITE</p>
-              <h2>새 글 작성</h2>
+              <p className="sectionLabel">ACCOUNT</p>
+              <h2>{viewer ? "Write a post" : "Sign in first"}</h2>
             </div>
-            <PostForm />
+
+            {viewerName ? (
+              <PostForm userName={viewerName} />
+            ) : (
+              <div className="stack gap16">
+                <p className="mutedText">
+                  Use email sign-up or login before creating posts and comments.
+                </p>
+                <Link className="buttonGhostLink buttonGhostLinkFill" href="/login">
+                  Open auth page
+                </Link>
+              </div>
+            )}
           </section>
 
           <section className="panel compactPanel">
             <div className="panelHeader">
               <p className="sectionLabel">SETUP</p>
-              <h2>현재 연결 상태</h2>
+              <h2>Deployment notes</h2>
             </div>
             <p className="mutedText">
-              Supabase URL과 anon key는 연결해두었습니다. 아직 테이블을 만들지
-              않았다면 <code>supabase/schema.sql</code> 을 먼저 실행하세요.
+              Re-run <code>supabase/schema.sql</code> after pulling this update.
+              The schema now adds authenticated posting policies and user-linked
+              columns for posts and comments.
             </p>
           </section>
         </aside>
@@ -68,14 +105,14 @@ export default async function Home() {
             <section className="panel warningPanel">
               <div className="panelHeader">
                 <p className="sectionLabel">NOTICE</p>
-                <h2>게시판 테이블이 아직 준비되지 않았습니다</h2>
+                <h2>Your board schema is not ready</h2>
               </div>
               <p className="mutedText">
-                현재 읽기 오류: <code>{loadError}</code>
+                Current read error: <code>{loadError}</code>
               </p>
               <p className="mutedText">
-                Supabase SQL Editor에서 <code>supabase/schema.sql</code> 파일의
-                내용을 실행하면 바로 연결됩니다.
+                Run <code>supabase/schema.sql</code> again in the Supabase SQL
+                Editor so the auth-aware schema and RLS policies are updated.
               </p>
             </section>
           ) : null}
@@ -83,9 +120,11 @@ export default async function Home() {
           {posts.length === 0 ? (
             <section className="panel emptyPanel">
               <p className="sectionLabel">EMPTY BOARD</p>
-              <h2>첫 게시글을 남겨보세요</h2>
+              <h2>No posts yet</h2>
               <p className="mutedText">
-                테이블 생성이 끝났다면 왼쪽 폼으로 첫 글을 작성할 수 있습니다.
+                {viewer
+                  ? "You are signed in. Publish the first post from the left panel."
+                  : "Sign in first, then publish the first post from the left panel."}
               </p>
             </section>
           ) : null}
@@ -106,14 +145,12 @@ export default async function Home() {
               <p className="postBody">{post.body}</p>
 
               <div className="commentHeader">
-                <h3>댓글 {post.comments.length}</h3>
+                <h3>Comments {post.comments.length}</h3>
               </div>
 
               <div className="commentStack">
                 {post.comments.length === 0 ? (
-                  <div className="commentCard commentEmpty">
-                    아직 댓글이 없습니다. 첫 댓글을 남겨보세요.
-                  </div>
+                  <div className="commentCard commentEmpty">No comments yet.</div>
                 ) : null}
 
                 {post.comments.map((comment) => (
@@ -127,7 +164,16 @@ export default async function Home() {
                 ))}
               </div>
 
-              <CommentForm postId={post.id} />
+              {viewerName ? (
+                <CommentForm postId={post.id} userName={viewerName} />
+              ) : (
+                <div className="noticeCard">
+                  <p className="mutedText">Sign in to comment on this post.</p>
+                  <Link className="buttonGhostLink" href="/login">
+                    Go to auth page
+                  </Link>
+                </div>
+              )}
             </article>
           ))}
         </section>

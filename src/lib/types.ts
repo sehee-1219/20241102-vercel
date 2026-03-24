@@ -1,5 +1,6 @@
 export type Comment = {
   id: string;
+  user_id: string | null;
   author_name: string;
   body: string;
   created_at: string;
@@ -7,6 +8,7 @@ export type Comment = {
 
 export type Post = {
   id: string;
+  user_id: string | null;
   author_name: string;
   title: string;
   body: string;

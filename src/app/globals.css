@@ -2,7 +2,6 @@
   --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
   --font-body: Aptos, "Malgun Gothic", "Segoe UI", sans-serif;
   --bg: #f1e9dc;
-  --bg-deep: #1d2425;
   --paper: rgba(255, 250, 243, 0.84);
   --paper-strong: rgba(255, 251, 247, 0.94);
   --line: rgba(34, 42, 43, 0.12);
@@ -10,7 +9,6 @@
   --muted: #596061;
   --accent: #bc5f3a;
   --accent-deep: #8e3d26;
-  --olive: #49523f;
   --success: #21624c;
   --error: #9d2f2f;
   color-scheme: light;
@@ -37,8 +35,16 @@ body {
     linear-gradient(180deg, rgba(29, 36, 37, 0.04), rgba(29, 36, 37, 0.12));
 }
 
+body,
+input,
+textarea,
+button {
+  font-family: var(--font-body);
+}
+
 a {
   color: inherit;
+  text-decoration: none;
 }
 
 button,
@@ -54,7 +60,8 @@ code {
   border-radius: 0.35rem;
 }
 
-.pageShell {
+.pageShell,
+.authPageShell {
   width: min(1240px, calc(100% - 32px));
   margin: 0 auto;
   padding: 32px 0 72px;
@@ -101,6 +108,27 @@ code {
   font-size: 0.72rem;
 }
 
+.authEyebrow {
+  color: var(--muted);
+}
+
+.topBar,
+.authPageHeader,
+.heroRow {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.topBar {
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.authPageHeader {
+  align-items: flex-start;
+}
+
 .heroRow {
   display: grid;
   gap: 24px;
@@ -108,10 +136,23 @@ code {
   align-items: end;
 }
 
+.identityPill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .heroCopy h1,
 .panelHeader h2,
 .postTopRow h2,
-.emptyPanel h2 {
+.emptyPanel h2,
+.authPageHeader h1 {
   margin: 0;
   font-family: var(--font-display);
   line-height: 0.96;
@@ -120,6 +161,10 @@ code {
 .heroCopy h1 {
   font-size: clamp(3.4rem, 8vw, 6.5rem);
   margin-top: 8px;
+}
+
+.authPageHeader h1 {
+  font-size: clamp(2.8rem, 7vw, 4.6rem);
 }
 
 .heroBody {
@@ -158,10 +203,16 @@ code {
   align-items: start;
 }
 
+.authGrid,
 .sidebarStack,
 .feedStack,
 .stack {
   display: grid;
+}
+
+.authGrid {
+  gap: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .sidebarStack,
@@ -189,7 +240,8 @@ code {
 
 .compactPanel,
 .emptyPanel,
-.warningPanel {
+.warningPanel,
+.authPanel {
   background: rgba(255, 251, 247, 0.9);
 }
 
@@ -248,15 +300,20 @@ code {
   resize: vertical;
 }
 
-.buttonPrimary {
+.buttonPrimary,
+.buttonGhost,
+.buttonGhostLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
-  border: 0;
+  min-height: 48px;
   border-radius: 999px;
-  padding: 0 22px;
+  padding: 0 20px;
   font-weight: 700;
+}
+
+.buttonPrimary {
+  border: 0;
   color: #fff6ef;
   background: linear-gradient(135deg, var(--accent), var(--accent-deep));
   cursor: pointer;
@@ -274,6 +331,21 @@ code {
 .buttonPrimary:disabled {
   opacity: 0.62;
   cursor: wait;
+}
+
+.buttonGhost,
+.buttonGhostLink {
+  border: 1px solid rgba(34, 42, 43, 0.16);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+}
+
+.buttonGhost {
+  cursor: pointer;
+}
+
+.buttonGhostLinkFill {
+  background: linear-gradient(135deg, rgba(188, 95, 58, 0.14), rgba(73, 82, 63, 0.14));
 }
 
 .statusNote {
@@ -356,11 +428,18 @@ code {
   background: rgba(255, 255, 255, 0.64);
 }
 
-.commentEmpty {
+.commentEmpty,
+.helperText {
   color: var(--muted);
 }
 
-.commentForm {
+.helperText {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.commentForm,
+.noticeCard {
   display: grid;
   gap: 14px;
   padding-top: 6px;
@@ -377,7 +456,8 @@ code {
 
 @media (max-width: 980px) {
   .heroRow,
-  .contentGrid {
+  .contentGrid,
+  .authGrid {
     grid-template-columns: 1fr;
   }
 
@@ -392,7 +472,8 @@ code {
 }
 
 @media (max-width: 640px) {
-  .pageShell {
+  .pageShell,
+  .authPageShell {
     width: min(100% - 20px, 100%);
     padding-top: 20px;
   }
@@ -403,6 +484,8 @@ code {
     border-radius: 24px;
   }
 
+  .topBar,
+  .authPageHeader,
   .postTopRow,
   .commentMeta,
   .commentActionRow {

@@ -4,14 +4,15 @@ import clsx from "clsx";
 import { useActionState, useEffect, useRef } from "react";
 
 import { createComment } from "@/app/actions";
-import { initialActionState } from "@/lib/types";
 import { SubmitButton } from "@/components/submit-button";
+import { initialActionState } from "@/lib/types";
 
 type CommentFormProps = {
   postId: string;
+  userName: string;
 };
 
-export function CommentForm({ postId }: CommentFormProps) {
+export function CommentForm({ postId, userName }: CommentFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(createComment, initialActionState);
 
@@ -25,26 +26,18 @@ export function CommentForm({ postId }: CommentFormProps) {
     <form ref={formRef} action={formAction} className="commentForm">
       <input name="postId" type="hidden" value={postId} />
 
+      <p className="helperText">
+        Commenting as <strong>{userName}</strong>
+      </p>
+
       <div className="commentGrid">
         <div className="field">
-          <label htmlFor={`comment-author-${postId}`}>작성자</label>
-          <input
-            id={`comment-author-${postId}`}
-            name="authorName"
-            maxLength={40}
-            placeholder="댓글 작성자"
-            required
-            type="text"
-          />
-        </div>
-
-        <div className="field">
-          <label htmlFor={`comment-body-${postId}`}>댓글</label>
+          <label htmlFor={`comment-body-${postId}`}>Comment</label>
           <textarea
             id={`comment-body-${postId}`}
             name="body"
             maxLength={800}
-            placeholder="이 글에 대한 의견을 남겨보세요."
+            placeholder="Leave a reply for this post."
             required
             rows={4}
           />
@@ -52,7 +45,7 @@ export function CommentForm({ postId }: CommentFormProps) {
       </div>
 
       <div className="commentActionRow">
-        <SubmitButton idleLabel="댓글 남기기" pendingLabel="저장 중..." />
+        <SubmitButton idleLabel="Post comment" pendingLabel="Saving..." />
         {state.message ? (
           <p className={clsx("statusNote", state.status)}>{state.message}</p>
         ) : null}

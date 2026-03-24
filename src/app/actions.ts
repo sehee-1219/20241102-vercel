@@ -2,17 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getSupabaseServerClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types";
+import { getDisplayName } from "@/lib/user";
 
 const POST_LIMITS = {
-  author: 40,
   title: 120,
   body: 2000,
 };
 
 const COMMENT_LIMITS = {
-  author: 40,
   body: 800,
 };
 
@@ -22,52 +21,63 @@ function readField(formData: FormData, key: string) {
 
 function getErrorMessage(error: unknown) {
   const message =
-    error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+    error instanceof Error ? error.message : "Something went wrong.";
 
   if (
     message.includes("relation") ||
     message.includes("schema cache") ||
     message.includes("permission denied")
   ) {
-    return "Supabase 테이블 또는 정책이 아직 준비되지 않았습니다. supabase/schema.sql 을 먼저 실행해주세요.";
+    return "Your Supabase tables or RLS policies are not ready. Run supabase/schema.sql again.";
   }
 
-  return `저장에 실패했습니다. ${message}`;
+  return `Save failed. ${message}`;
 }
 
 export async function createPost(
   _previousState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const authorName = readField(formData, "authorName");
   const title = readField(formData, "title");
   const body = readField(formData, "body");
 
-  if (!authorName || !title || !body) {
+  if (!title || !body) {
     return {
       status: "error",
-      message: "이름, 제목, 내용을 모두 입력해주세요.",
+      message: "Enter both a title and body.",
     };
   }
 
-  if (authorName.length > POST_LIMITS.author || title.length > POST_LIMITS.title) {
+  if (title.length > POST_LIMITS.title) {
     return {
       status: "error",
-      message: "이름은 40자 이하, 제목은 120자 이하로 입력해주세요.",
+      message: "Keep the title under 120 characters.",
     };
   }
 
   if (body.length > POST_LIMITS.body) {
     return {
       status: "error",
-      message: "본문은 2000자 이하로 입력해주세요.",
+      message: "Keep the body under 2000 characters.",
     };
   }
 
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        status: "error",
+        message: "Sign in before creating a post.",
+      };
+    }
+
     const { error } = await supabase.from("posts").insert({
-      author_name: authorName,
+      user_id: user.id,
+      author_name: getDisplayName(user),
       title,
       body,
     });
@@ -80,7 +90,7 @@ export async function createPost(
 
     return {
       status: "success",
-      message: "게시글이 등록되었습니다.",
+      message: "Post created.",
     };
   } catch (error) {
     return {
@@ -95,35 +105,39 @@ export async function createComment(
   formData: FormData,
 ): Promise<ActionState> {
   const postId = readField(formData, "postId");
-  const authorName = readField(formData, "authorName");
   const body = readField(formData, "body");
 
-  if (!postId || !authorName || !body) {
+  if (!postId || !body) {
     return {
       status: "error",
-      message: "이름과 댓글 내용을 입력해주세요.",
-    };
-  }
-
-  if (authorName.length > COMMENT_LIMITS.author) {
-    return {
-      status: "error",
-      message: "이름은 40자 이하로 입력해주세요.",
+      message: "Enter a comment first.",
     };
   }
 
   if (body.length > COMMENT_LIMITS.body) {
     return {
       status: "error",
-      message: "댓글은 800자 이하로 입력해주세요.",
+      message: "Keep the comment under 800 characters.",
     };
   }
 
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return {
+        status: "error",
+        message: "Sign in before leaving a comment.",
+      };
+    }
+
     const { error } = await supabase.from("comments").insert({
       post_id: postId,
-      author_name: authorName,
+      user_id: user.id,
+      author_name: getDisplayName(user),
       body,
     });
 
@@ -135,7 +149,7 @@ export async function createComment(
 
     return {
       status: "success",
-      message: "댓글이 등록되었습니다.",
+      message: "Comment added.",
     };
   } catch (error) {
     return {

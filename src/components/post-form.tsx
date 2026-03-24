@@ -4,10 +4,14 @@ import clsx from "clsx";
 import { useActionState, useEffect, useRef } from "react";
 
 import { createPost } from "@/app/actions";
-import { initialActionState } from "@/lib/types";
 import { SubmitButton } from "@/components/submit-button";
+import { initialActionState } from "@/lib/types";
 
-export function PostForm() {
+type PostFormProps = {
+  userName: string;
+};
+
+export function PostForm({ userName }: PostFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(createPost, initialActionState);
 
@@ -19,43 +23,35 @@ export function PostForm() {
 
   return (
     <form ref={formRef} action={formAction} className="stack gap16">
-      <div className="field">
-        <label htmlFor="post-author">작성자</label>
-        <input
-          id="post-author"
-          name="authorName"
-          maxLength={40}
-          placeholder="닉네임 또는 이름"
-          required
-          type="text"
-        />
-      </div>
+      <p className="helperText">
+        Posting as <strong>{userName}</strong>
+      </p>
 
       <div className="field">
-        <label htmlFor="post-title">제목</label>
+        <label htmlFor="post-title">Title</label>
         <input
           id="post-title"
           name="title"
           maxLength={120}
-          placeholder="무슨 이야기를 남길까요?"
+          placeholder="What do you want to share?"
           required
           type="text"
         />
       </div>
 
       <div className="field">
-        <label htmlFor="post-body">내용</label>
+        <label htmlFor="post-body">Body</label>
         <textarea
           id="post-body"
           name="body"
           maxLength={2000}
-          placeholder="공지, 일상, 질문, 회고를 자유롭게 남겨보세요."
+          placeholder="Write a post, update, question, or note."
           required
           rows={8}
         />
       </div>
 
-      <SubmitButton idleLabel="게시글 올리기" pendingLabel="등록 중..." />
+      <SubmitButton idleLabel="Publish post" pendingLabel="Publishing..." />
 
       {state.message ? (
         <p className={clsx("statusNote", state.status)}>{state.message}</p>

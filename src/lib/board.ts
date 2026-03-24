@@ -1,4 +1,6 @@
-import { getSupabaseServerClient } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
+
+import { createClient } from "@/lib/supabase/server";
 import type { Comment, Post } from "@/lib/types";
 
 type PostRow = Omit<Post, "comments"> & {
@@ -7,18 +9,20 @@ type PostRow = Omit<Post, "comments"> & {
 
 export async function getBoardSnapshot() {
   try {
-    const supabase = getSupabaseServerClient();
+    const supabase = await createClient();
     const { data, error } = await supabase
       .from("posts")
       .select(
         `
           id,
+          user_id,
           author_name,
           title,
           body,
           created_at,
           comments (
             id,
+            user_id,
             author_name,
             body,
             created_at
@@ -46,9 +50,18 @@ export async function getBoardSnapshot() {
     return {
       posts: [] as Post[],
       loadError:
-        error instanceof Error ? error.message : "게시판 데이터를 불러오지 못했습니다.",
+        error instanceof Error ? error.message : "Could not load board data.",
     };
   }
+}
+
+export async function getViewer() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return user as User | null;
 }
 
 export function formatTimestamp(value: string) {
