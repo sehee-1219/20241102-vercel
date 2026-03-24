@@ -27,17 +27,17 @@ export function CommentForm({ postId, userName }: CommentFormProps) {
       <input name="postId" type="hidden" value={postId} />
 
       <p className="helperText">
-        Commenting as <strong>{userName}</strong>
+        <strong>{userName}</strong> 이름으로 댓글 작성 중
       </p>
 
       <div className="commentGrid">
         <div className="field">
-          <label htmlFor={`comment-body-${postId}`}>Comment</label>
+          <label htmlFor={`comment-body-${postId}`}>댓글</label>
           <textarea
             id={`comment-body-${postId}`}
             name="body"
             maxLength={800}
-            placeholder="Leave a reply for this post."
+            placeholder="이 게시글에 대한 의견을 남겨보세요."
             required
             rows={4}
           />
@@ -45,7 +45,7 @@ export function CommentForm({ postId, userName }: CommentFormProps) {
       </div>
 
       <div className="commentActionRow">
-        <SubmitButton idleLabel="Post comment" pendingLabel="Saving..." />
+        <SubmitButton idleLabel="댓글 등록" pendingLabel="등록 중..." />
         {state.message ? (
           <p className={clsx("statusNote", state.status)}>{state.message}</p>
         ) : null}

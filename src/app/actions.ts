@@ -21,17 +21,17 @@ function readField(formData: FormData, key: string) {
 
 function getErrorMessage(error: unknown) {
   const message =
-    error instanceof Error ? error.message : "Something went wrong.";
+    error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
 
   if (
     message.includes("relation") ||
     message.includes("schema cache") ||
     message.includes("permission denied")
   ) {
-    return "Your Supabase tables or RLS policies are not ready. Run supabase/schema.sql again.";
+    return "Supabase 테이블 또는 권한 정책이 준비되지 않았습니다. supabase/schema.sql 을 다시 실행하세요.";
   }
 
-  return `Save failed. ${message}`;
+  return `저장에 실패했습니다. ${message}`;
 }
 
 export async function createPost(
@@ -44,21 +44,21 @@ export async function createPost(
   if (!title || !body) {
     return {
       status: "error",
-      message: "Enter both a title and body.",
+      message: "제목과 내용을 모두 입력하세요.",
     };
   }
 
   if (title.length > POST_LIMITS.title) {
     return {
       status: "error",
-      message: "Keep the title under 120 characters.",
+      message: "제목은 120자 이하로 입력하세요.",
     };
   }
 
   if (body.length > POST_LIMITS.body) {
     return {
       status: "error",
-      message: "Keep the body under 2000 characters.",
+      message: "내용은 2000자 이하로 입력하세요.",
     };
   }
 
@@ -71,7 +71,7 @@ export async function createPost(
     if (!user) {
       return {
         status: "error",
-        message: "Sign in before creating a post.",
+        message: "게시글을 작성하려면 먼저 로그인하세요.",
       };
     }
 
@@ -90,7 +90,7 @@ export async function createPost(
 
     return {
       status: "success",
-      message: "Post created.",
+      message: "게시글이 등록되었습니다.",
     };
   } catch (error) {
     return {
@@ -110,14 +110,14 @@ export async function createComment(
   if (!postId || !body) {
     return {
       status: "error",
-      message: "Enter a comment first.",
+      message: "댓글 내용을 입력하세요.",
     };
   }
 
   if (body.length > COMMENT_LIMITS.body) {
     return {
       status: "error",
-      message: "Keep the comment under 800 characters.",
+      message: "댓글은 800자 이하로 입력하세요.",
     };
   }
 
@@ -130,7 +130,7 @@ export async function createComment(
     if (!user) {
       return {
         status: "error",
-        message: "Sign in before leaving a comment.",
+        message: "댓글을 작성하려면 먼저 로그인하세요.",
       };
     }
 
@@ -149,7 +149,7 @@ export async function createComment(
 
     return {
       status: "success",
-      message: "Comment added.",
+      message: "댓글이 등록되었습니다.",
     };
   } catch (error) {
     return {

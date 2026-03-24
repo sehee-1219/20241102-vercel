@@ -20,17 +20,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main className="authPageShell">
       <section className="authPageCard">
-        <p className="eyebrow authEyebrow">SIGN IN TO WRITE</p>
+        <p className="eyebrow authEyebrow">로그인 후 글 작성 가능</p>
         <div className="authPageHeader">
           <div>
-            <h1>Access the board</h1>
+            <h1>게시판 접속</h1>
             <p className="mutedText">
-              Create an account with a username and password. Reading stays
-              public, but posts and comments require sign-in.
+              아이디와 비밀번호로 계정을 만들 수 있습니다. 게시판 읽기는
+              누구나 가능하지만, 글과 댓글 작성은 로그인 후에만 가능합니다.
             </p>
           </div>
           <Link className="buttonGhostLink" href="/">
-            Back to board
+            게시판으로 돌아가기
           </Link>
         </div>
 
@@ -40,85 +40,85 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div className="authGrid">
           <section className="panel authPanel">
             <div className="panelHeader">
-              <p className="sectionLabel">LOGIN</p>
-              <h2>Sign in</h2>
+              <p className="sectionLabel">로그인</p>
+              <h2>로그인</h2>
             </div>
 
             <form action={signIn} className="stack gap16">
               <div className="field">
-                <label htmlFor="signin-username">Username</label>
+                <label htmlFor="signin-username">아이디</label>
                 <input
                   autoCapitalize="none"
                   autoCorrect="off"
                   id="signin-username"
                   name="username"
-                  placeholder="your-id"
+                  placeholder="아이디를 입력하세요"
                   required
                   type="text"
                 />
               </div>
 
               <div className="field">
-                <label htmlFor="signin-password">Password</label>
+                <label htmlFor="signin-password">비밀번호</label>
                 <input
                   id="signin-password"
                   name="password"
-                  placeholder="Your password"
+                  placeholder="비밀번호를 입력하세요"
                   required
                   type="password"
                 />
               </div>
 
-              <SubmitButton idleLabel="Sign in" pendingLabel="Signing in..." />
+              <SubmitButton idleLabel="로그인" pendingLabel="로그인 중..." />
             </form>
           </section>
 
           <section className="panel authPanel">
             <div className="panelHeader">
-              <p className="sectionLabel">SIGN UP</p>
-              <h2>Create account</h2>
+              <p className="sectionLabel">회원가입</p>
+              <h2>계정 만들기</h2>
             </div>
 
             <form action={signUp} className="stack gap16">
               <div className="field">
-                <label htmlFor="signup-username">Username</label>
+                <label htmlFor="signup-username">아이디</label>
                 <input
                   autoCapitalize="none"
                   autoCorrect="off"
                   id="signup-username"
                   maxLength={20}
                   name="username"
-                  placeholder="3-20 chars: a-z, 0-9, . _ -"
+                  placeholder="3-20자: 영문 소문자, 숫자, . _ -"
                   required
                   type="text"
                 />
               </div>
 
               <div className="field">
-                <label htmlFor="signup-display-name">Display name</label>
+                <label htmlFor="signup-display-name">표시 이름</label>
                 <input
                   id="signup-display-name"
                   maxLength={40}
                   name="displayName"
-                  placeholder="How your posts should appear"
+                  placeholder="게시판에 표시될 이름"
                   required
                   type="text"
                 />
               </div>
 
               <div className="field">
-                <label htmlFor="signup-password">Password</label>
+                <label htmlFor="signup-password">비밀번호</label>
                 <input
                   id="signup-password"
                   minLength={6}
                   name="password"
-                  placeholder="At least 6 characters"
+                  placeholder="최소 6자 이상"
                   required
                   type="password"
                 />
               </div>
 
-              <SubmitButton idleLabel="Create account" pendingLabel="Creating..." />
+              <SubmitButton idleLabel="회원가입" pendingLabel="계정 생성 중..." />
             </form>
           </section>
         </div>

@@ -33,14 +33,14 @@ export async function signUp(formData: FormData) {
   const password = readField(formData, "password");
 
   if (!username || !displayName || !password) {
-    redirect(buildRedirect("error", "Fill in every field.", "signup"));
+    redirect(buildRedirect("error", "모든 항목을 입력하세요.", "signup"));
   }
 
   if (!isValidUsername(username)) {
     redirect(
       buildRedirect(
         "error",
-        "Use 3-20 lowercase letters, numbers, dots, underscores, or hyphens for the username.",
+        "아이디는 3-20자의 영문 소문자, 숫자, 점, 밑줄, 하이픈만 사용할 수 있습니다.",
         "signup",
       ),
     );
@@ -48,7 +48,7 @@ export async function signUp(formData: FormData) {
 
   if (password.length < 6) {
     redirect(
-      buildRedirect("error", "Use at least 6 characters for the password.", "signup"),
+      buildRedirect("error", "비밀번호는 최소 6자 이상이어야 합니다.", "signup"),
     );
   }
 
@@ -79,7 +79,7 @@ export async function signUp(formData: FormData) {
   redirect(
     buildRedirect(
       "error",
-      "Disable Email Confirmations in Supabase Auth settings to use username signup without email verification.",
+      "이메일 인증 없이 아이디 가입을 쓰려면 Supabase Auth 설정에서 이메일 인증을 꺼야 합니다.",
       "signup",
     ),
   );
@@ -90,14 +90,14 @@ export async function signIn(formData: FormData) {
   const password = readField(formData, "password");
 
   if (!username || !password) {
-    redirect(buildRedirect("error", "Enter your username and password.", "signin"));
+    redirect(buildRedirect("error", "아이디와 비밀번호를 입력하세요.", "signin"));
   }
 
   if (!isValidUsername(username)) {
     redirect(
       buildRedirect(
         "error",
-        "Use the username you signed up with.",
+        "회원가입할 때 사용한 아이디를 입력하세요.",
         "signin",
       ),
     );
