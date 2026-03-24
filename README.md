@@ -13,7 +13,7 @@ Supabase Auth and Next.js power this community board. Reading stays public, but 
 `.env.local` needs:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://fppakfwjnflpraokzvqi.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://vzolyyrkqejeyybymuja.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
 
