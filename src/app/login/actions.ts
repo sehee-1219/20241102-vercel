@@ -40,7 +40,7 @@ export async function signUp(formData: FormData) {
     redirect(
       buildRedirect(
         "error",
-        "아이디는 3-20자의 영문 소문자, 숫자, 점, 밑줄, 하이픈만 사용할 수 있습니다.",
+        "아이디는 3-20자의 영문 소문자만 사용할 수 있습니다.",
         "signup",
       ),
     );
@@ -97,7 +97,7 @@ export async function signIn(formData: FormData) {
     redirect(
       buildRedirect(
         "error",
-        "회원가입할 때 사용한 아이디를 입력하세요.",
+        "회원가입할 때 사용한 영문 소문자 아이디를 입력하세요.",
         "signin",
       ),
     );

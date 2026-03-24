@@ -1,7 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 
-const USERNAME_PATTERN = /^[a-z0-9._-]{3,20}$/;
-const INTERNAL_EMAIL_DOMAIN = "users.signal-board.local";
+const USERNAME_PATTERN = /^[a-z]{3,20}$/;
+const INTERNAL_EMAIL_DOMAIN = "users.signal-board.example.com";
 
 function trimValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
