@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import {
   buildInternalEmail,
+  getCandidateEmails,
   isValidUsername,
   normalizeUsername,
 } from "@/lib/user";
@@ -104,18 +105,23 @@ export async function signIn(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const email = buildInternalEmail(username);
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  let lastErrorMessage = "로그인에 실패했습니다.";
 
-  if (error) {
-    redirect(buildRedirect("error", error.message, "signin"));
+  for (const email of getCandidateEmails(username)) {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (!error) {
+      revalidatePath("/", "layout");
+      redirect("/");
+    }
+
+    lastErrorMessage = error.message;
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  redirect(buildRedirect("error", lastErrorMessage, "signin"));
 }
 
 export async function signOut() {

@@ -1,7 +1,11 @@
 import type { User } from "@supabase/supabase-js";
 
 const USERNAME_PATTERN = /^[a-z0-9]{3,20}$/;
-const INTERNAL_EMAIL_DOMAIN = "users.signal-board.example.com";
+const CURRENT_INTERNAL_EMAIL_DOMAIN = "signalboardapp.com";
+const LEGACY_INTERNAL_EMAIL_DOMAINS = [
+  "users.signal-board.local",
+  "users.signal-board.example.com",
+];
 
 function trimValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -16,7 +20,14 @@ export function isValidUsername(value: string) {
 }
 
 export function buildInternalEmail(username: string) {
-  return `${username}@${INTERNAL_EMAIL_DOMAIN}`;
+  return `${username}@${CURRENT_INTERNAL_EMAIL_DOMAIN}`;
+}
+
+export function getCandidateEmails(username: string) {
+  return [
+    `${username}@${CURRENT_INTERNAL_EMAIL_DOMAIN}`,
+    ...LEGACY_INTERNAL_EMAIL_DOMAINS.map((domain) => `${username}@${domain}`),
+  ];
 }
 
 export function getUsername(user: User) {
@@ -28,8 +39,13 @@ export function getUsername(user: User) {
     return normalizeUsername(metadataUsername);
   }
 
-  if (user.email?.endsWith(`@${INTERNAL_EMAIL_DOMAIN}`)) {
-    return user.email.replace(`@${INTERNAL_EMAIL_DOMAIN}`, "");
+  for (const domain of [
+    CURRENT_INTERNAL_EMAIL_DOMAIN,
+    ...LEGACY_INTERNAL_EMAIL_DOMAINS,
+  ]) {
+    if (user.email?.endsWith(`@${domain}`)) {
+      return user.email.replace(`@${domain}`, "");
+    }
   }
 
   return "member";
